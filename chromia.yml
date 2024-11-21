@@ -1,0 +1,137 @@
+blockchains:
+  Mockchain:
+    config:
+      gtx:
+        modules:
+          - "net.postchain.d1.iccf.IccfGTXModule"
+    module: mockchain
+    moduleArgs:
+      lib.ft4.core.accounts:
+        auth_descriptor:
+          max_number_per_account: 4
+          max_rules: 4
+      lib.ft4.core.admin:
+        admin_pubkey: 02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06
+  ChromiaDEX:
+    config:
+      gtx:
+        modules:
+          - "net.postchain.d1.iccf.IccfGTXModule"
+    module: main
+    moduleArgs:
+      lib.ft4.core.accounts.strategies.transfer:
+        rules:
+          - sender_blockchain: x"87C9CC394D851114C0C90DA2F97EC4CAB7D86A73D2480EBC76DF98340FD8CA18"
+            sender: "*"
+            recipient: "*"
+            asset:
+              issuing_blockchain_rid: x"87C9CC394D851114C0C90DA2F97EC4CAB7D86A73D2480EBC76DF98340FD8CA18"
+              name: "Chromia"
+              min_amount: 10000000L
+            timeout_days: 15
+            strategy: # List of transfer strategies to enable
+              - "fee"
+      lib.ft4.core.accounts.strategies.transfer.fee:
+        asset:
+          - name: Chromia # We can specify an asset by id
+            amount: 10000000000000000000L # How much of this asset to pay
+          - name: Color # we can specify an asset by name, this will refer to an asset issued by this chain
+            amount: 1000000000000000000000000L
+          - name: bUSDC
+            amount: 2000000L
+        fee_account: x"02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06" # All fees will be collected into this account
+      lib.ft4.core.accounts:
+        auth_flags:
+          mandatory: "T"
+        auth_descriptor:
+          max_number_per_account: 100
+          max_rules: 4
+      lib.ft4.core.admin:
+        admin_pubkey: 02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06
+      contracts:
+        dapp_account_treasury: x"028985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+        masterchef: x"128985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+        staking_account_treasury: x"228985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+        uniswap_account_treasury: x"328985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+        admin_evm_address: x"cda9647154f455d0f0786b9c90651c5a4594b36a"
+  Sidechain:
+    config:
+      gtx:
+        modules:
+          - "net.postchain.d1.iccf.IccfGTXModule"
+    module: sidechain
+    moduleArgs:
+      lib.ft4.core.accounts:
+        auth_descriptor:
+          max_number_per_account: 4
+          max_rules: 4
+      lib.ft4.core.admin:
+        admin_pubkey: 02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06
+libs:
+  ft4:
+    registry: https://bitbucket.org/chromawallet/ft3-lib
+    path: rell/src/lib/ft4
+    tagOrBranch: v0.7.0r
+    rid: x"F7C207AA595ABD25FDE5C2C2E32ECD3768B480AD03D1F2341548FF4F37D9B7AF"
+    insecure: false
+  iccf:
+    registry: https://gitlab.com/chromaway/core/directory-chain
+    path: src/iccf
+    tagOrBranch: 1.32.2
+    rid: x"1D567580C717B91D2F188A4D786DB1D41501086B155A68303661D25364314A4D"
+
+compile:
+  rellVersion: 0.13.13
+test:
+  modules:
+    - test
+  moduleArgs:
+    lib.ft4.core.accounts.strategies.transfer:
+      rules:
+        - sender_blockchain: x"0000000000000000000000000000000000000000000000000000000000000000"
+          sender: "*"
+          recipient: "*"
+          asset:
+            issuing_blockchain_rid: x"0000000000000000000000000000000000000000000000000000000000000000"
+            name: "Chromia"
+            min_amount: 10000000L
+          timeout_days: 15
+          strategy: # List of transfer strategies to enable
+            - "fee"
+    lib.ft4.core.accounts.strategies.transfer.fee:
+      asset:
+        - name: Chromia # We can specify an asset by id
+          amount: 10000000000000000000L # How much of this asset to pay
+        - name: Color # we can specify an asset by name, this will refer to an asset issued by this chain
+          amount: 1000000000000000000000000L
+        - name: bUSDC
+          amount: 2000000L
+      fee_account: x"02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06" # All fees will be collected into this account
+    lib.ft4.core.accounts:
+      auth_flags:
+        mandatory: "T"
+      rate_limit:
+        max_points: 20
+        recovery_time: 5000
+        points_at_account_creation: 10
+    lib.ft4.core.admin:
+      admin_pubkey: 02697A349D92481F231D5154975F951591EB60A6D386904AD7B26429CBA39B0E06
+    contracts:
+      dapp_account_treasury: x"028985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+      masterchef: x"128985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+      staking_account_treasury: x"228985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+      uniswap_account_treasury: x"328985087b1818714f67e494a076ca0284c060fabc5d2ba66885b4ac60f801d3f5"
+      admin_evm_address: x"02697a349d92481f231d5154975f951591eb60a6d386904ad7b26429cba39b0e06"
+
+database:
+  schema: schema_amm_dex
+
+deployments:
+  testnet: #Deployment Target name
+    brid: x"A1CD231739C348664E616E86A91F4515BD7BF3D0654E84ECDAB123F30388C84B" #Blockchain RID for the testnet management chain
+    url: https://node0.testnet.chromia.com:7740 #Target URL for one of the nodes in the testnet
+    container: WKUG2ezz2I # Container ID (Example - container: 15ddfcb25dcb43577ab311fe78aedab14fda25757c72a787420454728fb80304)
+
+    chains:
+      ChromiaDEX: x"2E3EBD1B44C414328DED2204C85A64CE13EC63934AC5E6DE90626BF944BB4209"
+      Sidechain: x"DC28052E646AB87D61E8779FC7FAB4D98F1EA64E9DE73B0E7460B8B7B1BD374A"
